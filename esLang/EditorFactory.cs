@@ -9,6 +9,8 @@ using System;
 
 namespace esLang
 {
+    // Code largely from sample at https://msdn.microsoft.com/en-us/library/bb165071.aspx
+
     [Guid("1096A617-CFD7-4488-9C75-DA2FDEF5A0C8")]
     class EditorFactory : IVsEditorFactory
     {

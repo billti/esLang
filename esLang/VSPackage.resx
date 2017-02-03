@@ -120,6 +120,9 @@
   <data name="101" xml:space="preserve">
     <value>IDS_EDITORNAME</value>
   </data>
+  <data name="106" xml:space="preserve">
+    <value>es</value>
+  </data>
   <data name="110" xml:space="preserve">
     <value>esPackage Extension</value>
   </data>
