@@ -13,6 +13,7 @@ namespace esLang
         private string source;
         private int offset;
         private string[] keywords = {"var", "function", "if", "else", "return", "while", "break"};
+        private char[] braces = { '{', '}', '(', ')', '[', ']' };
 
         private bool More => this.offset < this.source.Length;
 
@@ -21,6 +22,20 @@ namespace esLang
         private bool IsWhitespace(char c)
         {
             return c == ' ' || c == '\t' || c == '\n' || c == '\r';
+        }
+
+        private bool EatPunctuation(TokenInfo tokenInfo)
+        {
+            char curr = this.Curr;
+            if(this.braces.Contains(curr))
+            {
+                tokenInfo.Color = TokenColor.Number;
+                tokenInfo.Type = TokenType.Delimiter;
+                tokenInfo.Trigger = TokenTriggers.MatchBraces;
+                tokenInfo.EndIndex = this.offset++;
+                return true;
+            }
+            return false;
         }
 
         private bool EatWhitespace(TokenInfo tokenInfo)
@@ -64,6 +79,7 @@ namespace esLang
             }
             tokenInfo.Type = TokenType.String;
             tokenInfo.Color = TokenColor.String;
+            //tokenInfo.Trigger = TokenTriggers.MatchBraces;
             this.offset++;
             while(true)
             {
@@ -84,11 +100,11 @@ namespace esLang
 
         private bool EatText(TokenInfo tokenInfo)
         {
-            // Always true. Consume up to #, ", whitespace, or EOF
+            // Always true. Consume up to #, ", braces, whitespace, or EOF
             while(true)
             {
                 char next = this.Curr;
-                if(next == '\0' || next == '#' || next == '"' || this.IsWhitespace(next))
+                if(next == '\0' || next == '#' || next == '"' || this.braces.Contains(next) || this.IsWhitespace(next))
                 {
                     break;
                 }
@@ -120,7 +136,7 @@ namespace esLang
             tokenInfo.StartIndex = this.offset;
 
             // No tokens span lines, so there is no state between calls. Always return a whole, independant token
-            return EatWhitespace(tokenInfo) || EatComment(tokenInfo) || EatString(tokenInfo) || EatText(tokenInfo);
+            return EatPunctuation(tokenInfo) || EatWhitespace(tokenInfo) || EatComment(tokenInfo) || EatString(tokenInfo) || EatText(tokenInfo);
         }
 
         public void SetSource(string source, int offset)

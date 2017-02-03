@@ -47,7 +47,7 @@ namespace esLang
     [ProvideEditorFactory(typeof(EditorFactory), 101)]
     [ProvideEditorExtension(typeof(EditorFactory), ".es", 32, NameResourceID = 101)]
     [ProvideService(typeof (EsLanguageService), ServiceName = "es language service")]
-    [ProvideLanguageService(typeof(EsLanguageService), "es", 106, EnableAsyncCompletion = true)]
+    [ProvideLanguageService(typeof(EsLanguageService), "es", 106, EnableAsyncCompletion = true, CodeSense = true, MatchBraces = true, MatchBracesAtCaret = true, ShowMatchingBrace = true)]
     [ProvideLanguageExtension(typeof(EsLanguageService), ".es")]
     public sealed class esPackage : Package, IOleComponent
     {

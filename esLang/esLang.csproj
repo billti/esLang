@@ -52,6 +52,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="EditorFactory.cs" />
+    <Compile Include="EsAuthoringScope.cs" />
     <Compile Include="EsLanguageService.cs" />
     <Compile Include="esPackage.cs" />
     <Compile Include="EsScanner.cs" />
