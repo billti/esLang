@@ -12,43 +12,115 @@ namespace esLang
     {
         private string source;
         private int offset;
-        private ParseState parseState = ParseState.InText;
+        private string[] keywords = {"var", "function", "if", "else", "return", "while", "break"};
 
-        private enum ParseState
+        private bool More => this.offset < this.source.Length;
+
+        private char Curr => this.More ? this.source[offset] : '\0';
+
+        private bool IsWhitespace(char c)
         {
-            InText = 0,     // Default
-            InQuotes = 1,   // Use template literals across lines ``
-            InComment = 2   // Use line comments only after #
+            return c == ' ' || c == '\t' || c == '\n' || c == '\r';
+        }
+
+        private bool EatWhitespace(TokenInfo tokenInfo)
+        {
+            if (!IsWhitespace(this.Curr))
+            {
+                return false;
+            }
+            tokenInfo.Type = TokenType.Text;
+            tokenInfo.Color = TokenColor.Text;
+            while (true)
+            {
+                this.offset++;
+                if (!this.IsWhitespace(this.Curr)) break;
+            }
+            tokenInfo.EndIndex = this.offset - 1;
+            return true;
+        }
+
+        private bool EatComment(TokenInfo tokenInfo)
+        {
+            if(this.Curr != '#')
+            {
+                return false;
+            }
+            tokenInfo.Type = TokenType.Comment;
+            tokenInfo.Color = TokenColor.Comment;
+            while (this.Curr != '\0')
+            {
+                this.offset++;
+            }
+            tokenInfo.EndIndex = this.offset - 1;
+            return true;
+        }
+
+        private bool EatString(TokenInfo tokenInfo)
+        {
+            if(this.Curr != '"')
+            {
+                return false;
+            }
+            tokenInfo.Type = TokenType.String;
+            tokenInfo.Color = TokenColor.String;
+            this.offset++;
+            while(true)
+            {
+                if(this.Curr == '"')
+                {
+                    this.offset++;
+                    break;
+                }
+                if(this.Curr == '\0')
+                {
+                    break;
+                }
+                this.offset++;
+            }
+            tokenInfo.EndIndex = this.offset - 1;
+            return true;
+        }
+
+        private bool EatText(TokenInfo tokenInfo)
+        {
+            // Always true. Consume up to #, ", whitespace, or EOF
+            while(true)
+            {
+                char next = this.Curr;
+                if(next == '\0' || next == '#' || next == '"' || this.IsWhitespace(next))
+                {
+                    break;
+                }
+                this.offset++;
+            }
+            tokenInfo.EndIndex = this.offset - 1;
+            int tokenLength = tokenInfo.EndIndex - tokenInfo.StartIndex + 1;
+            string tokenText = this.source.Substring(tokenInfo.StartIndex, tokenLength);
+            if(this.keywords.Contains(tokenText))
+            {
+                tokenInfo.Type = TokenType.Keyword;
+                tokenInfo.Color = TokenColor.Keyword;
+            }
+            else
+            {
+                tokenInfo.Type = TokenType.Text;
+                tokenInfo.Color = TokenColor.Text;
+            }
+            return true;
         }
 
         public bool ScanTokenAndProvideInfoAboutIt(TokenInfo tokenInfo, ref int state)
         {
-            if(tokenInfo == null || this.offset >= this.source.Length)
+            if(tokenInfo == null || !this.More)
             {
                 return false;
             }
 
             tokenInfo.StartIndex = this.offset;
 
-            // Jus color each alternate char for now
-            switch (this.parseState)
-            {
-                case ParseState.InQuotes:
-                    tokenInfo.Color = TokenColor.String;
-                    this.parseState = ParseState.InComment;
-                    break;
-                case ParseState.InComment:
-                    tokenInfo.Color = TokenColor.Comment;
-                    this.parseState = ParseState.InText;
-                    break;
-                default: // Text
-                    tokenInfo.Color = TokenColor.Text;
-                    this.parseState = ParseState.InQuotes;
-                    break;
-            }
-            tokenInfo.EndIndex = this.offset++;
-            state = (int)this.parseState;
-            return true;
+            // No tokens span lines, so there is no state between calls. Always return a whole, independant token
+            return EatWhitespace(tokenInfo) || EatComment(tokenInfo) || EatString(tokenInfo) || EatText(tokenInfo);
         }
 
         public void SetSource(string source, int offset)
