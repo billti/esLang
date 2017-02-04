@@ -37,29 +37,25 @@ namespace esLang
             return this.languagePreferences;
         }
 
+        public override Source CreateSource(IVsTextLines buffer)
+        {
+            var src = new EsSource(this, buffer, this.GetColorizer(buffer));
+            src.LastParseTime = 0;
+            return src;
+        }
+
         // See "Legacy language service parser and scanner": https://msdn.microsoft.com/en-us/library/bb164730.aspx
         public override IScanner GetScanner(IVsTextLines buffer)
         {
-            return new EsScanner();
+            return new EsScanner(buffer);
         }
 
-        //// Need to do this for the ParseSource calls of 'check' to happen
-        public override void OnIdle(bool periodic)
-        {
-            Source src = GetSource(this.LastActiveTextView);
-            if (src != null && src.LastParseTime == Int32.MaxValue)
-            {
-                src.LastParseTime = 0;
-            }
-            base.OnIdle(periodic);
-        }
-
-        // Will need to be implemented to do brace matching, etc... See https://msdn.microsoft.com/en-us/library/microsoft.visualstudio.package.languageservice.parsesource.aspx
+        // Needs to be implemented to do brace matching, etc... See https://msdn.microsoft.com/en-us/library/microsoft.visualstudio.package.languageservice.parsesource.aspx
         public override AuthoringScope ParseSource(ParseRequest req)
         {
             var authoringScope = new EsAuthoringScope(req.Sink);
 
-            /* Hard-coded errors and braces for now for first 3 lines of:
+            /* Currently hard-coded errors and braces for now for first 3 lines of:
 var class = {name: "Bill"};  # Error on class reserved word
 
 function foo(a, b, c) {
@@ -94,5 +90,18 @@ function foo(a, b, c) {
             }
             return authoringScope;
         }
+
+        //// Need to do this for the ParseSource calls of 'check' to happen if we weren't
+        //// providing our own Source class and setting LastParseTime there.
+        //
+        //public override void OnIdle(bool periodic)
+        //{
+        //    Source src = GetSource(this.LastActiveTextView);
+        //    if (src != null && src.LastParseTime == Int32.MaxValue)
+        //    {
+        //        src.LastParseTime = 0;
+        //    }
+        //    base.OnIdle(periodic);
+        //}
     }
 }

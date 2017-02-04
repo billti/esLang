@@ -1,9 +1,6 @@
 ﻿using Microsoft.VisualStudio.Package;
-using System;
-using System.Collections.Generic;
+using Microsoft.VisualStudio.TextManager.Interop;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace esLang
 {
@@ -14,10 +11,16 @@ namespace esLang
         private int offset;
         private string[] keywords = {"var", "function", "if", "else", "return", "while", "break"};
         private char[] braces = { '{', '}', '(', ')', '[', ']' };
+        private IVsTextLines buffer;
 
         private bool More => this.offset < this.source.Length;
 
         private char Curr => this.More ? this.source[offset] : '\0';
+
+        public EsScanner(IVsTextLines buffer)
+        {
+            this.buffer = buffer;
+        }
 
         private bool IsWhitespace(char c)
         {
@@ -79,7 +82,6 @@ namespace esLang
             }
             tokenInfo.Type = TokenType.String;
             tokenInfo.Color = TokenColor.String;
-            //tokenInfo.Trigger = TokenTriggers.MatchBraces;
             this.offset++;
             while(true)
             {
@@ -100,7 +102,7 @@ namespace esLang
 
         private bool EatText(TokenInfo tokenInfo)
         {
-            // Always true. Consume up to #, ", braces, whitespace, or EOF
+            // Always true. Consume up to #, ", punctuation, braces, whitespace, or EOF
             while(true)
             {
                 char next = this.Curr;

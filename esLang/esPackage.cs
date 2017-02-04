@@ -4,18 +4,13 @@
 // </copyright>
 //------------------------------------------------------------------------------
 
+using Microsoft.VisualStudio.OLE.Interop;
+using Microsoft.VisualStudio.Package;
+using Microsoft.VisualStudio.Shell;
 using System;
 using System.ComponentModel.Design;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.Runtime.InteropServices;
-using Microsoft.VisualStudio;
-using Microsoft.VisualStudio.OLE.Interop;
-using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
-using Microsoft.Win32;
-using Microsoft.VisualStudio.Package;
 
 namespace esLang
 {
@@ -23,23 +18,6 @@ namespace esLang
     // See "Syntax coloring in a legacy language service": https://msdn.microsoft.com/en-us/library/bb166778.aspx
     // See "Registering a legacy language service": https://msdn.microsoft.com/en-us/library/bb166498.aspx
 
-    /// <summary>
-    /// This is the class that implements the package exposed by this assembly.
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    /// The minimum requirement for a class to be considered a valid package for Visual Studio
-    /// is to implement the IVsPackage interface and register itself with the shell.
-    /// This package uses the helper classes defined inside the Managed Package Framework (MPF)
-    /// to do it: it derives from the Package class that provides the implementation of the
-    /// IVsPackage interface and uses the registration attributes defined in the framework to
-    /// register itself and its components with the shell. These attributes tell the pkgdef creation
-    /// utility what data to put into .pkgdef file.
-    /// </para>
-    /// <para>
-    /// To get loaded into VS, the package must be referred by &lt;Asset Type="Microsoft.VisualStudio.VsPackage" ...&gt; in .vsixmanifest file.
-    /// </para>
-    /// </remarks>
     [PackageRegistration(UseManagedResourcesOnly = true)]
     [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)] // Info on this package for Help/About
     [Guid(esPackage.PackageGuidString)]
@@ -47,7 +25,7 @@ namespace esLang
     [ProvideEditorFactory(typeof(EditorFactory), 101)]
     [ProvideEditorExtension(typeof(EditorFactory), ".es", 32, NameResourceID = 101)]
     [ProvideService(typeof (EsLanguageService), ServiceName = "es language service")]
-    [ProvideLanguageService(typeof(EsLanguageService), "es", 106, EnableAsyncCompletion = true, CodeSense = true, MatchBraces = true, MatchBracesAtCaret = true, ShowMatchingBrace = true)]
+    [ProvideLanguageService(typeof(EsLanguageService), "es", 106, EnableAsyncCompletion = true, CodeSense = true, MatchBraces = true, MatchBracesAtCaret = true, EnableFormatSelection = true)]
     [ProvideLanguageExtension(typeof(EsLanguageService), ".es")]
     public sealed class esPackage : Package, IOleComponent
     {
@@ -156,8 +134,6 @@ namespace esLang
         public int FDoIdle(uint grfidlef)
         {
             bool bPeriodic = (grfidlef & (uint)_OLEIDLEF.oleidlefPeriodic) != 0;
-            // Use typeof(TestLanguageService) because we need to  
-            // reference the GUID for our language service.  
             LanguageService service = GetService(typeof(EsLanguageService))
                                       as LanguageService;
             if (service != null)
