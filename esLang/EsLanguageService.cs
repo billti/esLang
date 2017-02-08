@@ -3,7 +3,7 @@ using Microsoft.VisualStudio.Package;
 using Microsoft.VisualStudio.TextManager.Interop;
 
 /*
- * TODO:
+ * TODO list:
  *  - Brace matching: https://social.msdn.microsoft.com/Forums/en-US/7ff77737-090e-4db0-8776-f32e7182cc4c/clarifications-on-brace-matching-in-the-managed-package-framework?forum=vsx
  *  - Brace matching notes: http://www.jagregory.com/writings/brace-matching-and-your-language-service/
  *  - Formatting: https://msdn.microsoft.com/en-us/library/bb164633.aspx

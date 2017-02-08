@@ -9,6 +9,7 @@ using System;
 
 namespace esLang
 {
+    // TODO: Should probably replace with Microsoft.VisualStudio.Package.EditorFactor derived class
     // Code largely from sample at https://msdn.microsoft.com/en-us/library/bb165071.aspx
 
     [Guid("1096A617-CFD7-4488-9C75-DA2FDEF5A0C8")]

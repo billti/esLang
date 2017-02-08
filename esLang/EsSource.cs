@@ -12,6 +12,7 @@ namespace esLang
         // TODO: To implement formatting
         public override void ReformatSpan(EditArray mgr, TextSpan span)
         {
+            // Use an EditArray to merge muliple changes into one edit: https://msdn.microsoft.com/en-us/library/microsoft.visualstudio.package.editarray.aspx
             base.ReformatSpan(mgr, span);
         }
     }
