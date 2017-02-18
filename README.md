@@ -2,9 +2,10 @@
 
 A simple project for implementing a basic VSPackage and Language Service for VS 2017.
 
-This uses the Managed Package Framework and 'legacy' interfaces currently, not
+The .es classifier uses the Managed Package Framework and 'legacy' interfaces currently, not
 the newer MEF object model (or the Roslyn APIs).
 
+The .mjs classifier uses the new MEF based model.
 
 ## Notes
 
